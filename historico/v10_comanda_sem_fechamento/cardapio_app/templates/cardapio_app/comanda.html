@@ -1,0 +1,14 @@
+{% extends "cardapio_app/base.html" %}
+{% block conteudo %}
+<h2>Comanda #{{ comanda.id }} — Mesa {{ comanda.mesa.numero }}</h2>
+<p>Status: <b>{{ comanda.get_status_display }}</b></p>
+<table><tr><th>Item</th><th>Qtd.</th><th>Unitário</th><th>Subtotal</th></tr>
+{% for item in itens %}<tr><td>{% if item.prato %}{{ item.prato.nome }}{% else %}{{ item.combo.nome }}{% endif %}</td><td>{{ item.quantidade }}</td><td>R$ {{ item.preco_unitario }}</td><td>R$ {{ item.subtotal }}</td></tr>
+{% empty %}<tr><td colspan="4">Nenhum item na comanda.</td></tr>{% endfor %}
+</table>
+<h2>Total: R$ {{ total }}</h2>
+{% if comanda.status == "ABERTA" %}
+<a class="btn" href="{% url 'novo_item' comanda.id %}">Adicionar item</a>
+<a class="btn danger" href="{% url 'fechar_comanda' comanda.id %}">Fechar conta</a>
+{% endif %}
+{% endblock %}
