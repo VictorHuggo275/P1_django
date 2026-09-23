@@ -11,5 +11,4 @@ urlpatterns = [
     path("mesas/<int:mesa_id>/comanda/abrir/", views.abrir_comanda, name="abrir_comanda"),
     path("comandas/<int:comanda_id>/", views.detalhe_comanda, name="detalhe_comanda"),
     path("comandas/<int:comanda_id>/item/novo/", views.novo_item, name="novo_item"),
-    path("comandas/<int:comanda_id>/fechar/", views.fechar_comanda, name="fechar_comanda"),
 ]
