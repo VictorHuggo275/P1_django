@@ -2,9 +2,9 @@
 
 ## Como executar o projeto
 
-### 1. Abrir o terminal na pasta do projeto
+### 1. Abrir o projeto
 
-Abra o terminal do VS Code e entre na pasta do projeto:
+Abra o terminal do VS Code na pasta do projeto:
 
 ```bash
 cd CardapioDigital_P1
@@ -12,15 +12,13 @@ cd CardapioDigital_P1
 
 ### 2. Criar a máquina virtual
 
-Crie uma máquina virtual Python para o projeto:
-
 ```bash
 python -m venv venv
 ```
 
 ### 3. Ativar a máquina virtual
 
-No Windows, utilizando o CMD:
+No Windows pelo CMD:
 
 ```cmd
 venv\Scripts\activate
@@ -32,11 +30,9 @@ No PowerShell:
 .\venv\Scripts\Activate.ps1
 ```
 
-Quando a máquina virtual estiver ativada, aparecerá `(venv)` no início do terminal.
+Após a ativação, `(venv)` aparecerá no início do terminal.
 
 ### 4. Instalar as dependências
-
-Com a `venv` ativada, instale as bibliotecas necessárias:
 
 ```bash
 pip install -r requirements.txt
@@ -50,34 +46,38 @@ Execute as migrações do Django:
 python manage.py migrate
 ```
 
-### 6. Criar um usuário administrador
-
-Para acessar o painel administrativo do Django:
+### 6. Criar o usuário administrador
 
 ```bash
 python manage.py createsuperuser
 ```
 
-Preencha o nome de usuário, e-mail e senha solicitados.
+Preencha as informações solicitadas pelo terminal.
 
 ### 7. Iniciar o servidor
-
-Execute:
 
 ```bash
 python manage.py runserver
 ```
 
-O projeto estará disponível em:
+Depois, acesse no navegador:
 
 ```text
 http://127.0.0.1:8000/
 ```
 
-Para acessar o painel administrativo:
+O painel administrativo pode ser acessado em:
 
 ```text
 http://127.0.0.1:8000/admin/
+```
+
+Para encerrar o servidor, pressione `CTRL + C`.
+
+Para desativar a máquina virtual:
+
+```bash
+deactivate
 ```
 
 ---
@@ -214,7 +214,7 @@ Também possui:
 * Preço unitário;
 * Subtotal.
 
-O sistema impede que um item seja simultaneamente um prato e um combo.
+Um item não pode possuir um prato e um combo ao mesmo tempo.
 
 ## Funcionamento
 
@@ -236,9 +236,9 @@ Fechar comanda
 Registrar valor total
 ```
 
-Ao adicionar um item, o preço utilizado é obtido automaticamente a partir do prato ou combo selecionado.
+Ao adicionar um item, o sistema utiliza o preço correspondente ao prato ou combo selecionado.
 
-Ao fechar uma comanda, o sistema soma os subtotais de todos os itens e registra o resultado como o total da conta.
+Ao fechar uma comanda, os subtotais dos itens são somados para obter o valor total.
 
 ## Validações
 
@@ -255,58 +255,14 @@ O sistema possui validações para:
 
 O projeto utiliza **SQLite** durante o desenvolvimento.
 
-O banco de dados é criado após executar:
+O banco de dados é criado automaticamente pelo Django através das migrações.
 
-```bash
-python manage.py migrate
-```
-
-O arquivo gerado é:
+O arquivo do banco é:
 
 ```text
 db.sqlite3
 ```
 
-## Comandos úteis
-
-### Ativar a venv
-
-```bash
-venv\Scripts\activate
-```
-
-### Criar migrações
-
-```bash
-python manage.py makemigrations
-```
-
-### Aplicar migrações
-
-```bash
-python manage.py migrate
-```
-
-### Criar administrador
-
-```bash
-python manage.py createsuperuser
-```
-
-### Iniciar o servidor
-
-```bash
-python manage.py runserver
-```
-
-### Desativar a venv
-
-Quando terminar de utilizar o projeto:
-
-```bash
-deactivate
-```
-
 ## Objetivo
 
-O projeto foi desenvolvido como uma aplicação prática de gerenciamento de restaurante, utilizando conceitos de desenvolvimento web, banco de dados, modelos, formulários, validações e operações CRUD com Django.
+O projeto foi desenvolvido como uma aplicação prática para gerenciamento de um restaurante, utilizando conceitos de desenvolvimento web, banco de dados, modelos, formulários, validações e operações CRUD com Django.
