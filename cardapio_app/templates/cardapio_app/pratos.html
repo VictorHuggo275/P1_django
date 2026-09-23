@@ -1,3 +1,20 @@
 {% extends "cardapio_app/base.html" %}
-{% block conteudo %}<h2>Pratos</h2><a class="btn" href="{% url 'novo_prato' %}">Novo prato</a>
-<table><tr><th>Nome</th><th>Preço</th><th>Disponível</th></tr>{% for p in pratos %}<tr><td>{{ p.nome }}</td><td>R$ {{ p.preco }}</td><td>{{ p.disponivel|yesno:"Sim,Não" }}</td></tr>{% endfor %}</table>{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+  <h2>Pratos</h2>
+  <a class="btn btn-primary" href="{% url 'novo_prato' %}">+ Novo prato</a>
+</div>
+<div class="table-wrap">
+<table>
+<tr><th>Nome</th><th>Descrição</th><th>Preço</th><th>Disponível</th></tr>
+{% for p in pratos %}
+<tr>
+  <td>{{ p.nome }}</td>
+  <td class="muted">{{ p.descricao|default:"—" }}</td>
+  <td>R$ {{ p.preco }}</td>
+  <td>{% if p.disponivel %}<span class="badge badge-success">Sim</span>{% else %}<span class="badge badge-muted">Não</span>{% endif %}</td>
+</tr>
+{% empty %}<tr><td colspan="4" class="empty-state">Nenhum prato cadastrado ainda.</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

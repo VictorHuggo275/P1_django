@@ -1,9 +1,12 @@
 from decimal import Decimal
+
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from .forms import ItemForm, MesaForm, PratoForm
+from django.views.decorators.http import require_POST
+
+from .forms import ComboForm, ItemForm, MesaForm, PratoForm
 from .models import Comanda, Combo, Item, Mesa, Prato
 
 
@@ -11,12 +14,12 @@ def inicio(request):
     return render(request, "cardapio_app/inicio.html", {
         "mesas": Mesa.objects.filter(ativa=True).order_by("numero"),
         "pratos": Prato.objects.filter(disponivel=True).order_by("nome"),
-        "combos": Combo.objects.filter(disponivel=True).order_by("nome"),
+        "combos": Combo.objects.filter(disponivel=True).prefetch_related("pratos").order_by("nome"),
     })
 
 
 def pratos(request):
-    return render(request, "cardapio_app/pratos.html", {"pratos": Prato.objects.all()})
+    return render(request, "cardapio_app/pratos.html", {"pratos": Prato.objects.all().order_by("nome")})
 
 
 def novo_prato(request):
@@ -29,7 +32,21 @@ def novo_prato(request):
 
 
 def combos(request):
-    return render(request, "cardapio_app/combos.html", {"combos": Combo.objects.prefetch_related("pratos")})
+    return render(request, "cardapio_app/combos.html", {
+        "combos": Combo.objects.prefetch_related("pratos").order_by("nome"),
+    })
+
+
+def novo_combo(request):
+    # Esta view não existia: não havia nenhuma rota nem página para cadastrar um
+    # combo, então era literalmente impossível juntar pratos em um combo pela
+    # interface (o único jeito seria pelo /admin/).
+    form = ComboForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Combo cadastrado.")
+        return redirect("combos")
+    return render(request, "cardapio_app/combo_form.html", {"form": form, "titulo": "Novo combo"})
 
 
 def mesas(request):
@@ -41,11 +58,16 @@ def nova_mesa(request):
     form = MesaForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
+        messages.success(request, "Mesa cadastrada.")
         return redirect("mesas")
     return render(request, "cardapio_app/form.html", {"form": form, "titulo": "Nova mesa"})
 
 
+@require_POST
 def abrir_comanda(request, mesa_id):
+    # Criar/abrir uma comanda altera o banco de dados, então essa ação não deveria
+    # responder a um GET simples (um link clicado, um crawler ou até o próprio
+    # navegador pré-carregando a página podiam disparar a criação sem querer).
     mesa = get_object_or_404(Mesa, pk=mesa_id)
     comanda = Comanda.objects.filter(mesa=mesa, status=Comanda.ABERTA).first()
     if not comanda:
@@ -66,17 +88,18 @@ def novo_item(request, comanda_id):
     if request.method == "POST" and form.is_valid():
         item = form.save(commit=False)
         item.comanda = comanda
-        if item.prato and item.combo:
-            form.add_error(None, "Escolha prato ou combo, não os dois.")
-        elif not item.prato and not item.combo:
-            form.add_error(None, "Escolha um prato ou um combo.")
-        else:
-            item.preco_unitario = item.prato.preco if item.prato else item.combo.preco
-            item.save()
-            return redirect("detalhe_comanda", comanda_id=comanda.id)
-    return render(request, "cardapio_app/form.html", {"form": form, "titulo": "Adicionar item"})
+        item.preco_unitario = item.prato.preco if item.prato else item.combo.preco
+        item.save()
+        messages.success(request, "Item adicionado à comanda.")
+        return redirect("detalhe_comanda", comanda_id=comanda.id)
+    return render(request, "cardapio_app/form.html", {
+        "form": form,
+        "titulo": "Adicionar item",
+        "ajuda": "Escolha um prato OU um combo (não os dois) e informe a quantidade.",
+    })
 
 
+@require_POST
 @transaction.atomic
 def fechar_comanda(request, comanda_id):
     comanda = get_object_or_404(Comanda, pk=comanda_id, status=Comanda.ABERTA)
