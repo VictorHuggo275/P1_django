@@ -1,3 +1,0 @@
-{% extends "cardapio_app/base.html" %}
-{% block conteudo %}<h2>Mesas</h2><a class="btn" href="{% url 'nova_mesa' %}">Nova mesa</a>
-<div class="grid">{% for mesa in mesas %}<div class="card"><h3>Mesa {{ mesa.numero }}</h3><p>Capacidade: {{ mesa.capacidade }}</p><p>{% if mesa.ativa %}Ativa{% else %}Inativa{% endif %}</p><a class="btn" href="{% url 'abrir_comanda' mesa.id %}">Abrir comanda</a></div>{% endfor %}</div>{% endblock %}

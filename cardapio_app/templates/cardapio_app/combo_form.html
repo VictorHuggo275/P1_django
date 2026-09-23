@@ -1,0 +1,47 @@
+{% extends "cardapio_app/base.html" %}
+{% block conteudo %}
+<div class="page-header"><h2>{{ titulo }}</h2></div>
+<form method="post" class="form-card">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+
+  <div class="field">
+    <label for="{{ form.nome.id_for_label }}">Nome do combo</label>
+    {{ form.nome }}
+    {{ form.nome.errors }}
+  </div>
+
+  <div class="field">
+    <label for="{{ form.descricao.id_for_label }}">Descrição</label>
+    {{ form.descricao }}
+    {{ form.descricao.errors }}
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="{{ form.preco.id_for_label }}">Preço (R$)</label>
+      {{ form.preco }}
+      {{ form.preco.errors }}
+    </div>
+    <div class="field field-checkbox">
+      {{ form.disponivel }}
+      <label for="{{ form.disponivel.id_for_label }}">Disponível no cardápio</label>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>{{ form.pratos.label }}</label>
+    <p class="field-hint">{{ form.pratos.help_text }}</p>
+    <div class="checkbox-grid">
+      {% for checkbox in form.pratos %}
+      <label class="chip">{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+      {% empty %}
+      <p class="empty-state">Nenhum prato disponível. Cadastre pratos antes de criar um combo.</p>
+      {% endfor %}
+    </div>
+    {{ form.pratos.errors }}
+  </div>
+
+  <button class="btn btn-primary" type="submit">Salvar combo</button>
+</form>
+{% endblock %}

@@ -1,2 +1,21 @@
 {% extends "cardapio_app/base.html" %}
-{% block conteudo %}<h2>Combos</h2><table><tr><th>Nome</th><th>Preço</th><th>Pratos</th></tr>{% for c in combos %}<tr><td>{{ c.nome }}</td><td>R$ {{ c.preco }}</td><td>{% for p in c.pratos.all %}{{ p.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>{% endfor %}</table>{% endblock %}
+{% block conteudo %}
+<div class="page-header">
+  <h2>Combos</h2>
+  <a class="btn btn-primary" href="{% url 'novo_combo' %}">+ Novo combo</a>
+</div>
+<div class="grid">
+{% for c in combos %}
+<div class="card">
+  <div class="card-top"><b>{{ c.nome }}</b><span class="price">R$ {{ c.preco }}</span></div>
+  {% if c.descricao %}<p class="muted">{{ c.descricao }}</p>{% endif %}
+  <div class="tags">
+    {% for p in c.pratos.all %}<span class="tag">{{ p.nome }}</span>{% empty %}<span class="muted">Sem pratos vinculados</span>{% endfor %}
+  </div>
+  <p>{% if c.disponivel %}<span class="badge badge-success">Disponível</span>{% else %}<span class="badge badge-muted">Indisponível</span>{% endif %}</p>
+</div>
+{% empty %}
+<p class="empty-state">Nenhum combo cadastrado ainda. Clique em "Novo combo" para criar o primeiro, juntando 2 ou mais pratos.</p>
+{% endfor %}
+</div>
+{% endblock %}

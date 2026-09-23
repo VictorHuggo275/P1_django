@@ -3,30 +3,30 @@ from django.db import models
 
 
 class Prato(models.Model):
-    nome = models.CharField(max_length=100)
-    descricao = models.TextField(blank=True)
-    preco = models.DecimalField(max_digits=8, decimal_places=2)
-    disponivel = models.BooleanField(default=True)
+    nome = models.CharField("Nome", max_length=100)
+    descricao = models.TextField("Descrição", blank=True)
+    preco = models.DecimalField("Preço", max_digits=8, decimal_places=2)
+    disponivel = models.BooleanField("Disponível", default=True)
 
     def __str__(self):
         return self.nome
 
 
 class Combo(models.Model):
-    nome = models.CharField(max_length=100)
-    descricao = models.TextField(blank=True)
-    preco = models.DecimalField(max_digits=8, decimal_places=2)
-    disponivel = models.BooleanField(default=True)
-    pratos = models.ManyToManyField(Prato, blank=True, related_name="combos")
+    nome = models.CharField("Nome", max_length=100)
+    descricao = models.TextField("Descrição", blank=True)
+    preco = models.DecimalField("Preço", max_digits=8, decimal_places=2)
+    disponivel = models.BooleanField("Disponível", default=True)
+    pratos = models.ManyToManyField(Prato, blank=True, related_name="combos", verbose_name="Pratos")
 
     def __str__(self):
         return self.nome
 
 
 class Mesa(models.Model):
-    numero = models.PositiveIntegerField(unique=True)
-    capacidade = models.PositiveIntegerField(default=4)
-    ativa = models.BooleanField(default=True)
+    numero = models.PositiveIntegerField("Número", unique=True)
+    capacidade = models.PositiveIntegerField("Capacidade", default=4)
+    ativa = models.BooleanField("Ativa", default=True)
 
     def __str__(self):
         return f"Mesa {self.numero}"
@@ -51,8 +51,8 @@ class Item(models.Model):
     comanda = models.ForeignKey(Comanda, on_delete=models.CASCADE, related_name="itens")
     prato = models.ForeignKey(Prato, on_delete=models.PROTECT, null=True, blank=True)
     combo = models.ForeignKey(Combo, on_delete=models.PROTECT, null=True, blank=True)
-    quantidade = models.PositiveIntegerField(default=1)
-    preco_unitario = models.DecimalField(max_digits=8, decimal_places=2)
+    quantidade = models.PositiveIntegerField("Quantidade", default=1)
+    preco_unitario = models.DecimalField("Preço unitário", max_digits=8, decimal_places=2)
 
     @property
     def subtotal(self):
