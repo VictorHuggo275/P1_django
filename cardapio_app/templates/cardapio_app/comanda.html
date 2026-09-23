@@ -9,6 +9,6 @@
 <h2>Total: R$ {{ total }}</h2>
 {% if comanda.status == "ABERTA" %}
 <a class="btn" href="{% url 'novo_item' comanda.id %}">Adicionar item</a>
-<!-- TODO: ainda não existe uma forma de fechar a comanda nesta versão -->
+<a class="btn danger" href="{% url 'fechar_comanda' comanda.id %}">Fechar conta</a>
 {% endif %}
 {% endblock %}

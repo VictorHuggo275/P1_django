@@ -1,6 +1,8 @@
 from decimal import Decimal
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from .forms import ItemForm, MesaForm, PratoForm
 from .models import Comanda, Combo, Item, Mesa, Prato
 
@@ -75,5 +77,14 @@ def novo_item(request, comanda_id):
     return render(request, "cardapio_app/form.html", {"form": form, "titulo": "Adicionar item"})
 
 
-# TODO (próxima etapa): implementar fechar_comanda — calcular o total,
-# marcar a comanda como FECHADA e registrar fechada_em.
+@transaction.atomic
+def fechar_comanda(request, comanda_id):
+    comanda = get_object_or_404(Comanda, pk=comanda_id, status=Comanda.ABERTA)
+    itens = list(comanda.itens.all())
+    total = sum((item.subtotal for item in itens), Decimal("0.00"))
+    comanda.total = total
+    comanda.status = Comanda.FECHADA
+    comanda.fechada_em = timezone.now()
+    comanda.save(update_fields=["total", "status", "fechada_em"])
+    messages.success(request, f"Conta fechada: R$ {total:.2f}.")
+    return redirect("detalhe_comanda", comanda_id=comanda.id)
