@@ -7,6 +7,8 @@
 </div>
 <h2>Mesas</h2>
 <div class="grid">{% for mesa in mesas %}
-<div class="card"><h3>Mesa {{ mesa.numero }}</h3><p>Capacidade: {{ mesa.capacidade }}</p></div>
+<div class="card"><h3>Mesa {{ mesa.numero }}</h3><p>Capacidade: {{ mesa.capacidade }}</p>
+{% with aberta=mesa.comandas.all.0 %}{% endwith %}
+<a class="btn" href="{% url 'abrir_comanda' mesa.id %}">Abrir comanda</a></div>
 {% empty %}<p>Nenhuma mesa cadastrada.</p>{% endfor %}</div>
 {% endblock %}
