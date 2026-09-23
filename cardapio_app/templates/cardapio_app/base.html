@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Cardápio Digital</title>
+<link rel="stylesheet" href="{% static 'cardapio_app/style.css' %}">
+</head>
+<body>
+<header><h1>Cardápio Digital</h1><nav>
+<a href="{% url 'inicio' %}">Início</a>
+<a href="{% url 'mesas' %}">Mesas</a>
+<a href="{% url 'pratos' %}">Pratos</a>
+<a href="{% url 'combos' %}">Combos</a>
+</nav></header>
+<main>
+{% for message in messages %}<div class="msg">{{ message }}</div>{% endfor %}
+{% block conteudo %}{% endblock %}
+</main>
+<footer>Projeto P1 - Django + SQLite</footer>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{% extends "cardapio_app/base.html" %}
+{% block conteudo %}
+<h2>Cardápio</h2>
+<div class="grid">
+<section><h3>Pratos</h3>{% for p in pratos %}<div class="card"><b>{{ p.nome }}</b><span>R$ {{ p.preco }}</span><p>{{ p.descricao }}</p></div>{% empty %}<p>Nenhum prato cadastrado.</p>{% endfor %}</section>
+<section><h3>Combos</h3>{% for c in combos %}<div class="card"><b>{{ c.nome }}</b><span>R$ {{ c.preco }}</span><p>{{ c.descricao }}</p></div>{% empty %}<p>Nenhum combo cadastrado.</p>{% endfor %}</section>
+</div>
+<h2>Mesas</h2>
+<div class="grid">{% for mesa in mesas %}
+<div class="card"><h3>Mesa {{ mesa.numero }}</h3><p>Capacidade: {{ mesa.capacidade }}</p></div>
+{% empty %}<p>Nenhuma mesa cadastrada.</p>{% endfor %}</div>
+{% endblock %}
