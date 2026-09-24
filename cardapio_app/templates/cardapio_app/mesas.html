@@ -11,6 +11,12 @@
   <p class="muted">Capacidade: {{ mesa.capacidade }} pessoas</p>
   <p>{% if mesa.ativa %}<span class="badge badge-success">Ativa</span>{% else %}<span class="badge badge-muted">Inativa</span>{% endif %}</p>
   <form method="post" action="{% url 'abrir_comanda' mesa.id %}">{% csrf_token %}<button class="btn" type="submit">Abrir comanda</button></form>
+  <div class="actions">
+    <a class="btn btn-sm" href="{% url 'editar_mesa' mesa.id %}">Editar</a>
+    <form method="post" action="{% url 'excluir_mesa' mesa.id %}" onsubmit="return confirm('Excluir a mesa {{ mesa.numero }}?');">
+      {% csrf_token %}<button class="btn btn-sm btn-danger" type="submit">Excluir</button>
+    </form>
+  </div>
 </div>
 {% empty %}<p class="empty-state">Nenhuma mesa cadastrada ainda.</p>{% endfor %}
 </div>

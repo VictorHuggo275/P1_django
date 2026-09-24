@@ -23,6 +23,11 @@
       {{ form.preco }}
       {{ form.preco.errors }}
     </div>
+    <div class="field">
+      <label for="{{ form.categoria.id_for_label }}">Categoria</label>
+      {{ form.categoria }}
+      {{ form.categoria.errors }}
+    </div>
     <div class="field field-checkbox">
       {{ form.disponivel }}
       <label for="{{ form.disponivel.id_for_label }}">Disponível no cardápio</label>

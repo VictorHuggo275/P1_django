@@ -2,12 +2,13 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import ProtectedError, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import ComboForm, ItemForm, MesaForm, PratoForm
-from .models import Comanda, Combo, Item, Mesa, Prato
+from .forms import CategoriaForm, ComboForm, ItemForm, MesaForm, PratoForm
+from .models import Categoria, Comanda, Combo, Item, Mesa, Prato
 
 
 def inicio(request):
@@ -19,7 +20,28 @@ def inicio(request):
 
 
 def pratos(request):
-    return render(request, "cardapio_app/pratos.html", {"pratos": Prato.objects.all().order_by("nome")})
+    # Feature 1 (busca e filtro na listagem): lê os parâmetros da URL e aplica
+    # busca textual pelo nome + filtro por categoria, podendo ser usados juntos
+    # ou separadamente. O desafio extra usa Q() para combinar os dois na mesma
+    # consulta em vez de encadear dois .filter() (o resultado é equivalente,
+    # mas Q() deixa explícito que as condições podem ser combinadas com AND/OR).
+    termo = request.GET.get("q", "").strip()
+    categoria_id = request.GET.get("categoria", "").strip()
+
+    lista = Prato.objects.all().order_by("nome")
+    filtros = Q()
+    if termo:
+        filtros &= Q(nome__icontains=termo)
+    if categoria_id:
+        filtros &= Q(categoria_id=categoria_id)
+    if filtros:
+        lista = lista.filter(filtros)
+
+    return render(request, "cardapio_app/pratos.html", {
+        "pratos": lista,
+        "categorias": Categoria.objects.all(),
+        "categoria_selecionada": categoria_id,
+    })
 
 
 def novo_prato(request):
@@ -31,9 +53,52 @@ def novo_prato(request):
     return render(request, "cardapio_app/form.html", {"form": form, "titulo": "Novo prato"})
 
 
+def editar_prato(request, prato_id):
+    prato = get_object_or_404(Prato, pk=prato_id)
+    form = PratoForm(request.POST or None, instance=prato)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Prato atualizado.")
+        return redirect("pratos")
+    return render(request, "cardapio_app/form.html", {"form": form, "titulo": f"Editar prato — {prato.nome}"})
+
+
+@require_POST
+def excluir_prato(request, prato_id):
+    # Só aceita POST pelo mesmo motivo de abrir_comanda/fechar_comanda: excluir
+    # é uma alteração no banco e não pode acontecer por um simples GET.
+    prato = get_object_or_404(Prato, pk=prato_id)
+    try:
+        prato.delete()
+        messages.success(request, "Prato excluído.")
+    except ProtectedError:
+        # O prato já foi usado em algum item de comanda (on_delete=PROTECT),
+        # então apagar quebraria o histórico de pedidos. Em vez de deixar o
+        # Django estourar um erro 500, avisamos o usuário com uma alternativa.
+        messages.error(request, "Não é possível excluir: este prato já foi usado em algum pedido. "
+                                 "Marque-o como indisponível em vez de excluir.")
+    return redirect("pratos")
+
+
 def combos(request):
+    # Mesma ideia da Feature 1 aplicada à listagem de combos: busca por nome
+    # e filtro por categoria, combinados com Q() e usáveis juntos ou separados.
+    termo = request.GET.get("q", "").strip()
+    categoria_id = request.GET.get("categoria", "").strip()
+
+    lista = Combo.objects.prefetch_related("pratos").order_by("nome")
+    filtros = Q()
+    if termo:
+        filtros &= Q(nome__icontains=termo)
+    if categoria_id:
+        filtros &= Q(categoria_id=categoria_id)
+    if filtros:
+        lista = lista.filter(filtros)
+
     return render(request, "cardapio_app/combos.html", {
-        "combos": Combo.objects.prefetch_related("pratos").order_by("nome"),
+        "combos": lista,
+        "categorias": Categoria.objects.all(),
+        "categoria_selecionada": categoria_id,
     })
 
 
@@ -49,6 +114,43 @@ def novo_combo(request):
     return render(request, "cardapio_app/combo_form.html", {"form": form, "titulo": "Novo combo"})
 
 
+def editar_combo(request, combo_id):
+    combo = get_object_or_404(Combo, pk=combo_id)
+    form = ComboForm(request.POST or None, instance=combo)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Combo atualizado.")
+        return redirect("combos")
+    return render(request, "cardapio_app/combo_form.html", {"form": form, "titulo": f"Editar combo — {combo.nome}"})
+
+
+@require_POST
+def excluir_combo(request, combo_id):
+    combo = get_object_or_404(Combo, pk=combo_id)
+    try:
+        combo.delete()
+        messages.success(request, "Combo excluído.")
+    except ProtectedError:
+        messages.error(request, "Não é possível excluir: este combo já foi usado em algum pedido. "
+                                 "Marque-o como indisponível em vez de excluir.")
+    return redirect("combos")
+
+
+def categorias(request):
+    return render(request, "cardapio_app/categorias.html", {
+        "categorias": Categoria.objects.all(),
+    })
+
+
+def nova_categoria(request):
+    form = CategoriaForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Categoria cadastrada.")
+        return redirect("categorias")
+    return render(request, "cardapio_app/form.html", {"form": form, "titulo": "Nova categoria"})
+
+
 def mesas(request):
     mesas = Mesa.objects.all().order_by("numero")
     return render(request, "cardapio_app/mesas.html", {"mesas": mesas})
@@ -61,6 +163,30 @@ def nova_mesa(request):
         messages.success(request, "Mesa cadastrada.")
         return redirect("mesas")
     return render(request, "cardapio_app/form.html", {"form": form, "titulo": "Nova mesa"})
+
+
+def editar_mesa(request, mesa_id):
+    mesa = get_object_or_404(Mesa, pk=mesa_id)
+    form = MesaForm(request.POST or None, instance=mesa)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Mesa atualizada.")
+        return redirect("mesas")
+    return render(request, "cardapio_app/form.html", {"form": form, "titulo": f"Editar mesa — {mesa.numero}"})
+
+
+@require_POST
+def excluir_mesa(request, mesa_id):
+    mesa = get_object_or_404(Mesa, pk=mesa_id)
+    try:
+        mesa.delete()
+        messages.success(request, "Mesa excluída.")
+    except ProtectedError:
+        # A mesa já tem comandas associadas (on_delete=PROTECT em Comanda.mesa),
+        # então excluir apagaria o histórico de contas dessa mesa.
+        messages.error(request, "Não é possível excluir: esta mesa já tem comandas registradas. "
+                                 "Marque-a como inativa em vez de excluir.")
+    return redirect("mesas")
 
 
 @require_POST

@@ -4,17 +4,37 @@
   <h2>Pratos</h2>
   <a class="btn btn-primary" href="{% url 'novo_prato' %}">+ Novo prato</a>
 </div>
+
+<form method="get" class="search-bar">
+  <input type="text" name="q" placeholder="Buscar por nome..." value="{{ request.GET.q }}">
+  <select name="categoria">
+    <option value="">Todas as categorias</option>
+    {% for c in categorias %}
+    <option value="{{ c.id }}" {% if categoria_selecionada == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+  {% if request.GET.q or categoria_selecionada %}<a class="btn btn-muted" href="{% url 'pratos' %}">Limpar</a>{% endif %}
+</form>
+
 <div class="table-wrap">
 <table>
-<tr><th>Nome</th><th>Descrição</th><th>Preço</th><th>Disponível</th></tr>
+<tr><th>Nome</th><th>Descrição</th><th>Categoria</th><th>Preço</th><th>Disponível</th><th>Ações</th></tr>
 {% for p in pratos %}
 <tr>
   <td>{{ p.nome }}</td>
   <td class="muted">{{ p.descricao|default:"—" }}</td>
+  <td>{% if p.categoria %}<span class="tag">{{ p.categoria.nome }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
   <td>R$ {{ p.preco }}</td>
   <td>{% if p.disponivel %}<span class="badge badge-success">Sim</span>{% else %}<span class="badge badge-muted">Não</span>{% endif %}</td>
+  <td class="actions">
+    <a class="btn btn-sm" href="{% url 'editar_prato' p.id %}">Editar</a>
+    <form method="post" action="{% url 'excluir_prato' p.id %}" onsubmit="return confirm('Excluir o prato \'{{ p.nome }}\'?');">
+      {% csrf_token %}<button class="btn btn-sm btn-danger" type="submit">Excluir</button>
+    </form>
+  </td>
 </tr>
-{% empty %}<tr><td colspan="4" class="empty-state">Nenhum prato cadastrado ainda.</td></tr>{% endfor %}
+{% empty %}<tr><td colspan="6" class="empty-state">Nenhum prato encontrado para os filtros selecionados.</td></tr>{% endfor %}
 </table>
 </div>
 {% endblock %}

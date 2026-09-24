@@ -7,6 +7,7 @@
     <div class="card">
       <div class="card-top"><b>{{ p.nome }}</b><span class="price">R$ {{ p.preco }}</span></div>
       {% if p.descricao %}<p class="muted">{{ p.descricao }}</p>{% endif %}
+      {% if p.categoria %}<span class="tag">{{ p.categoria.nome }}</span>{% endif %}
     </div>
     {% empty %}<p class="empty-state">Nenhum prato cadastrado ainda.</p>{% endfor %}
   </div>
@@ -19,6 +20,7 @@
     <div class="card">
       <div class="card-top"><b>{{ c.nome }}</b><span class="price">R$ {{ c.preco }}</span></div>
       {% if c.descricao %}<p class="muted">{{ c.descricao }}</p>{% endif %}
+      {% if c.categoria %}<span class="tag">{{ c.categoria.nome }}</span>{% endif %}
       <div class="tags">{% for p in c.pratos.all %}<span class="tag">{{ p.nome }}</span>{% endfor %}</div>
     </div>
     {% empty %}<p class="empty-state">Nenhum combo cadastrado ainda.</p>{% endfor %}

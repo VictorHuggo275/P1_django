@@ -4,18 +4,38 @@
   <h2>Combos</h2>
   <a class="btn btn-primary" href="{% url 'novo_combo' %}">+ Novo combo</a>
 </div>
+
+<form method="get" class="search-bar">
+  <input type="text" name="q" placeholder="Buscar por nome..." value="{{ request.GET.q }}">
+  <select name="categoria">
+    <option value="">Todas as categorias</option>
+    {% for c in categorias %}
+    <option value="{{ c.id }}" {% if categoria_selecionada == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+  {% if request.GET.q or categoria_selecionada %}<a class="btn btn-muted" href="{% url 'combos' %}">Limpar</a>{% endif %}
+</form>
+
 <div class="grid">
 {% for c in combos %}
 <div class="card">
   <div class="card-top"><b>{{ c.nome }}</b><span class="price">R$ {{ c.preco }}</span></div>
   {% if c.descricao %}<p class="muted">{{ c.descricao }}</p>{% endif %}
+  {% if c.categoria %}<span class="tag">{{ c.categoria.nome }}</span>{% endif %}
   <div class="tags">
     {% for p in c.pratos.all %}<span class="tag">{{ p.nome }}</span>{% empty %}<span class="muted">Sem pratos vinculados</span>{% endfor %}
   </div>
   <p>{% if c.disponivel %}<span class="badge badge-success">Disponível</span>{% else %}<span class="badge badge-muted">Indisponível</span>{% endif %}</p>
+  <div class="actions">
+    <a class="btn btn-sm" href="{% url 'editar_combo' c.id %}">Editar</a>
+    <form method="post" action="{% url 'excluir_combo' c.id %}" onsubmit="return confirm('Excluir o combo \'{{ c.nome }}\'?');">
+      {% csrf_token %}<button class="btn btn-sm btn-danger" type="submit">Excluir</button>
+    </form>
+  </div>
 </div>
 {% empty %}
-<p class="empty-state">Nenhum combo cadastrado ainda. Clique em "Novo combo" para criar o primeiro, juntando 2 ou mais pratos.</p>
+<p class="empty-state">Nenhum combo encontrado para os filtros selecionados.</p>
 {% endfor %}
 </div>
 {% endblock %}

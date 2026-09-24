@@ -64,7 +64,16 @@ tr:last-child td{border-bottom:0}
 .btn:active{transform:scale(.98)}
 .btn-primary{background:var(--primary)}
 .btn-danger{background:var(--danger)}
+.btn-muted{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-sm{padding:6px 12px;font-size:.85rem}
 .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.actions form{margin:0}
+td.actions{display:flex;gap:8px;align-items:center}
+
+/* busca e filtro (Feature 1) */
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.search-bar input[type=text]{flex:1;min-width:200px;width:auto}
+.search-bar select{width:auto;min-width:180px}
 
 /* mensagens */
 .messages{margin-bottom:10px}
