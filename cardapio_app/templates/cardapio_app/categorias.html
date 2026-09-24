@@ -1,0 +1,19 @@
+{% extends "cardapio_app/base.html" %}
+{% block conteudo %}
+<div class="page-header">
+  <h2>Categorias</h2>
+  <a class="btn btn-primary" href="{% url 'nova_categoria' %}">+ Nova categoria</a>
+</div>
+<div class="table-wrap">
+<table>
+<tr><th>Nome</th><th>Pratos</th><th>Combos</th></tr>
+{% for c in categorias %}
+<tr>
+  <td>{{ c.nome }}</td>
+  <td>{{ c.pratos.count }}</td>
+  <td>{{ c.combos.count }}</td>
+</tr>
+{% empty %}<tr><td colspan="3" class="empty-state">Nenhuma categoria cadastrada ainda.</td></tr>{% endfor %}
+</table>
+</div>
+{% endblock %}

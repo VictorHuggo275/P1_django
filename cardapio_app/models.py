@@ -2,11 +2,29 @@ from decimal import Decimal
 from django.db import models
 
 
+class Categoria(models.Model):
+    # Categoria compartilhada entre Pratos e Combos, usada para organizar o
+    # cardápio e alimentar o filtro da Feature 1 (busca e filtro na listagem).
+    nome = models.CharField("Nome", max_length=60, unique=True)
+
+    class Meta:
+        verbose_name = "Categoria"
+        verbose_name_plural = "Categorias"
+        ordering = ["nome"]
+
+    def __str__(self):
+        return self.nome
+
+
 class Prato(models.Model):
     nome = models.CharField("Nome", max_length=100)
     descricao = models.TextField("Descrição", blank=True)
     preco = models.DecimalField("Preço", max_digits=8, decimal_places=2)
     disponivel = models.BooleanField("Disponível", default=True)
+    categoria = models.ForeignKey(
+        Categoria, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="pratos", verbose_name="Categoria",
+    )
 
     def __str__(self):
         return self.nome
@@ -18,6 +36,10 @@ class Combo(models.Model):
     preco = models.DecimalField("Preço", max_digits=8, decimal_places=2)
     disponivel = models.BooleanField("Disponível", default=True)
     pratos = models.ManyToManyField(Prato, blank=True, related_name="combos", verbose_name="Pratos")
+    categoria = models.ForeignKey(
+        Categoria, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="combos", verbose_name="Categoria",
+    )
 
     def __str__(self):
         return self.nome

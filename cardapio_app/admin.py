@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import Prato, Combo, Mesa, Comanda, Item
+from .models import Categoria, Prato, Combo, Mesa, Comanda, Item
 
+admin.site.register(Categoria)
 admin.site.register(Prato)
 admin.site.register(Combo)
 admin.site.register(Mesa)
