@@ -7,7 +7,7 @@
 Abra o terminal do VS Code na pasta do projeto:
 
 ```bash
-cd CardapioDigital_P1
+cd P1_django
 ```
 
 ### 2. Criar a máquina virtual
