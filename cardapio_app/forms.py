@@ -1,16 +1,25 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Combo, Item, Mesa, Prato
+from .models import Categoria, Combo, Item, Mesa, Prato
+
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ["nome"]
 
 
 class PratoForm(forms.ModelForm):
     class Meta:
         model = Prato
-        fields = ["nome", "descricao", "preco", "disponivel"]
+        fields = ["nome", "descricao", "preco", "categoria", "disponivel"]
         widgets = {"descricao": forms.Textarea(attrs={"rows": 3})}
 
     def clean_preco(self):
+        # Feature 2 (validação customizada): o preço do prato precisa ser
+        # maior que zero, algo além do "campo obrigatório" que o Django
+        # já garante sozinho.
         preco = self.cleaned_data["preco"]
         if preco <= 0:
             raise ValidationError("O preço precisa ser maior que zero.")
@@ -30,10 +39,11 @@ class ComboForm(forms.ModelForm):
 
     class Meta:
         model = Combo
-        fields = ["nome", "descricao", "preco", "disponivel", "pratos"]
+        fields = ["nome", "descricao", "preco", "categoria", "disponivel", "pratos"]
         widgets = {"descricao": forms.Textarea(attrs={"rows": 3})}
 
     def clean_preco(self):
+        # Mesma regra de validação customizada aplicada ao combo.
         preco = self.cleaned_data["preco"]
         if preco <= 0:
             raise ValidationError("O preço precisa ser maior que zero.")
